@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network
 
 TARGET = dvtoyinst
 TEMPLATE = app
@@ -45,4 +45,5 @@ FORMS += \
 RESOURCES += \
     res.qrc
 
-TRANSLATIONS += dvtoyinst_zh.ts
+TRANSLATIONS += translations/dvtoyinst_zh.ts \
+                translations/dvtoyinst_es.ts

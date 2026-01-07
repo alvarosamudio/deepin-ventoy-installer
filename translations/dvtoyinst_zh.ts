@@ -82,7 +82,12 @@ named &quot;ventoy-x.y.z-linux.tar.gz&quot; here</source>
 名称的压缩包拖放至此</translation>
     </message>
     <message>
-        <location filename="widget.ui" line="66"/>
+        <location filename="../widget.ui" line="65"/>
+        <source>Download Latest</source>
+        <translation>下载最新版</translation>
+    </message>
+    <message>
+        <location filename="../widget.ui" line="72"/>
         <source>Use the previous extraction in temporary folder</source>
         <translation>使用缓存中已解压的文件</translation>
     </message>
@@ -204,7 +209,47 @@ Updating from %2 to %3.</source>
         <translation>再次确认安装</translation>
     </message>
     <message>
-        <location filename="widget.cpp" line="164"/>
+        <location filename="../widget.cpp" line="436"/>
+        <source>Fetching latest release information...</source>
+        <translation>正在获取最新版本信息……</translation>
+    </message>
+    <message>
+        <location filename="../widget.cpp" line="446"/>
+        <source>Failed to fetch release info: %1</source>
+        <translation>获取版本信息失败：%1</translation>
+    </message>
+    <message>
+        <location filename="../widget.cpp" line="470"/>
+        <source>Could not find Linux archive in latest release.</source>
+        <translation>在最新版本中未找到 Linux 压缩包。</translation>
+    </message>
+    <message>
+        <location filename="../widget.cpp" line="475"/>
+        <source>Downloading %1...</source>
+        <translation>正在下载 %1……</translation>
+    </message>
+    <message>
+        <location filename="../widget.cpp" line="492"/>
+        <source>Download failed: %1</source>
+        <translation>下载失败：%1</translation>
+    </message>
+    <message>
+        <location filename="../widget.cpp" line="503"/>
+        <source>Download complete. Extracting...</source>
+        <translation>下载完成，正在解压……</translation>
+    </message>
+    <message>
+        <location filename="../widget.cpp" line="506"/>
+        <source>Failed to save downloaded file.</source>
+        <translation>保存下载的文件失败。</translation>
+    </message>
+    <message>
+        <location filename="../widget.cpp" line="515"/>
+        <source>Downloading... %1%</source>
+        <translation>正在下载…… %1%</translation>
+    </message>
+    <message>
+        <location filename="widget.cpp" line="165"/>
         <source>Installation failed!</source>
         <translation>安装失败！</translation>
     </message>
