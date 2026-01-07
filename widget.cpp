@@ -1,66 +1,60 @@
 #include <DDialog>
 #include <DGuiApplicationHelper>
-#include <QProcess>
-#include <QStorageInfo>
 #include <QMessageBox>
+#include <QNetworkRequest>
+#include <QProcess>
 #include <QScrollBar>
+#include <QStorageInfo>
+#include <QTemporaryFile>
+#include <QUrl>
 
-#include "widget.h"
 #include "ui_widget.h"
 #include "utilities.h"
+#include "widget.h"
 
 using namespace Dtk::Gui;
 using namespace Dtk::Widget;
 
-Widget::Widget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::Widget)
-{
+Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget) {
   ui->setupUi(this);
   initWidget();
 }
 
-Widget::~Widget()
-{
-  delete ui;
-}
+Widget::~Widget() { delete ui; }
 
-bool Widget::hasOngoingOperation()
-{
+bool Widget::hasOngoingOperation() {
   return m_unarchiveProcess.state() == QProcess::ProcessState::Running ||
-      m_installProcess.state() == QProcess::ProcessState::Running;
+         m_installProcess.state() == QProcess::ProcessState::Running;
 }
 
-void Widget::processVentoyArchive(QString aPath, bool aNoTest)
-{
+void Widget::processVentoyArchive(QString aPath, bool aNoTest) {
   m_unarchiveProcess.kill();
   m_unarchiveProcess.waitForFinished();
-  if(!tmpDir.removeRecursively())
-  {
+  if (!tmpDir.removeRecursively()) {
     qWarning() << "Failed to remove the temporary directory for extraction";
   }
   tmpDir.mkpath(tmpDir.path());
   m_noTestVentoy = aNoTest;
-  m_unarchiveProcess.start(QString("tar -xavf %1 -C %2").arg(QUrl(aPath).path()).arg(tmpDir.path()));
+  m_unarchiveProcess.start(
+      QString("tar -xavf %1 -C %2").arg(QUrl(aPath).path()).arg(tmpDir.path()));
 }
 
-void Widget::finishedUnarchive()
-{
-  switch(m_unarchiveProcess.exitCode())
-  {
-    case 0:
-      break;
-    case 1:
-      qInfo() << "Extracted files differ; they have been updated.";
-      break;
-    default:
-      QMessageBox failExtractMsg;
-      failExtractMsg.setText(tr("Extraction of the selected archive was not successful; exit code: %1.")
-                             .arg(m_unarchiveProcess.exitCode()));
-      failExtractMsg.setIcon(QMessageBox::Critical);
-      failExtractMsg.setDetailedText(m_unarchiveProcess.readAllStandardError());
-      failExtractMsg.exec();
-      return;
+void Widget::finishedUnarchive() {
+  switch (m_unarchiveProcess.exitCode()) {
+  case 0:
+    break;
+  case 1:
+    qInfo() << "Extracted files differ; they have been updated.";
+    break;
+  default:
+    QMessageBox failExtractMsg;
+    failExtractMsg.setText(tr("Extraction of the selected archive was not "
+                              "successful; exit code: %1.")
+                               .arg(m_unarchiveProcess.exitCode()));
+    failExtractMsg.setIcon(QMessageBox::Critical);
+    failExtractMsg.setDetailedText(m_unarchiveProcess.readAllStandardError());
+    failExtractMsg.exec();
+    return;
   }
   tmpDir.cd(tmpDir.path());
 
@@ -68,10 +62,10 @@ void Widget::finishedUnarchive()
   QDir::setCurrent(tmpDir.path());
 
   QString dviWorkDir = findDVIWorkFile(tmpDir, m_noTestVentoy);
-  if(dviWorkDir == "")
-  {
+  if (dviWorkDir == "") {
     QMessageBox failFindScriptMsg;
-    failFindScriptMsg.setText(tr("No working Ventoy build can be found in the extracted archive."));
+    failFindScriptMsg.setText(
+        tr("No working Ventoy build can be found in the extracted archive."));
     failFindScriptMsg.setIcon(QMessageBox::Critical);
     failFindScriptMsg.exec();
     return;
@@ -82,8 +76,7 @@ void Widget::finishedUnarchive()
   switchToInstaller();
 }
 
-void Widget::proceedInstallation()
-{
+void Widget::proceedInstallation() {
   DDialog force, confirm1, confirm2;
   const QString &devicePath = ui->selectDevice_combo->currentData().toString();
   bool isForceInstall, isUpdateInstall;
@@ -91,18 +84,17 @@ void Widget::proceedInstallation()
   isForceInstall = m_DeviceVer >= m_archiveVer && !m_DeviceVer.invalid();
   isUpdateInstall = m_DeviceVer < m_archiveVer;
 
-  if(isForceInstall)
-  {
-    force.setMessage(tr("Device %1 has got a newer or same Ventoy installed already. Proceed?\n"
+  if (isForceInstall) {
+    force.setMessage(tr("Device %1 has got a newer or same Ventoy installed "
+                        "already. Proceed?\n"
                         "You can still install it forcifully.")
-                 .arg(devicePath));
+                         .arg(devicePath));
     force.addButton(tr("Confirm"), false, DDialog::ButtonWarning);
     force.addButton(tr("Cancel"), true);
     force.setTitle(tr("Confirm Installation"));
     force.setIcon(QIcon::fromTheme("dialog-warning"));
 
-    if(force.exec() != 0)
-    {
+    if (force.exec() != 0) {
       return;
     }
   }
@@ -110,22 +102,21 @@ void Widget::proceedInstallation()
   // We can't reuse a single dialog, because it will mess up
   // the window focuses. Fix this when it behaves right.
 
-  if(!isUpdateInstall)
-  {
+  if (!isUpdateInstall) {
     confirm1.setMessage(tr("You're about to install Ventoy into %1. Confirm?\n"
                            "ALL your data on the target will be erased!")
-                        .arg(devicePath));
-    confirm2.setMessage(tr("Double-check! The target device is %1.\n"
-                           "Installing Ventoy will destroy ALL DATA present on the device!")
-                        .arg(devicePath));
-  }
-  else
-  {
-    confirm1.setMessage(tr("You're about to update your Ventoy inside %1. Confirm?\n"
-                       "Updating from %2 to %3.")
-                        .arg(devicePath)
-                        .arg(m_DeviceVer)
-                        .arg(m_archiveVer));
+                            .arg(devicePath));
+    confirm2.setMessage(
+        tr("Double-check! The target device is %1.\n"
+           "Installing Ventoy will destroy ALL DATA present on the device!")
+            .arg(devicePath));
+  } else {
+    confirm1.setMessage(
+        tr("You're about to update your Ventoy inside %1. Confirm?\n"
+           "Updating from %2 to %3.")
+            .arg(devicePath)
+            .arg(m_DeviceVer)
+            .arg(m_archiveVer));
   }
 
   confirm1.addButton(tr("Confirm"), false, DDialog::ButtonWarning);
@@ -138,89 +129,76 @@ void Widget::proceedInstallation()
   confirm2.setTitle(tr("Confirm Installation Again"));
   confirm2.setIcon(QIcon::fromTheme("dialog-warning"));
 
-  if(confirm1.exec() == 0)
-  {
-    if(isUpdateInstall || confirm2.exec() == 0)
-    {
-      installVentoy(devicePath,
-                    m_DeviceVer < m_archiveVer,
-                    isForceInstall,
+  if (confirm1.exec() == 0) {
+    if (isUpdateInstall || confirm2.exec() == 0) {
+      installVentoy(devicePath, m_DeviceVer < m_archiveVer, isForceInstall,
                     ui->chkUseGptPartTable->isChecked(),
                     ui->chkEnableSecureBoot->isChecked(),
 
-                    ui->chkUseCustomVolLabel->isChecked() ?
-                      ui->lineCustomVolLabel->text() : "ventoy");
+                    ui->chkUseCustomVolLabel->isChecked()
+                        ? ui->lineCustomVolLabel->text()
+                        : "ventoy");
     }
   }
 }
 
-void Widget::finishedInstallation()
-{
+void Widget::finishedInstallation() {
   ui->spinnerInstall->stop();
   ui->spinnerInstall->setVisible(false);
   ui->btnBack->setVisible(true);
-  if(m_installProcess.exitCode())
-  {
-    ui->lblSuccessFailImage->setPixmap(QIcon::fromTheme("dialog-error").pixmap({48, 48}));
+  if (m_installProcess.exitCode()) {
+    ui->lblSuccessFailImage->setPixmap(
+        QIcon::fromTheme("dialog-error").pixmap({48, 48}));
     ui->lblInstallPrompt->setText(tr("Installation failed!"));
-  }
-  else
-  {
-    ui->lblSuccessFailImage->setPixmap(QIcon::fromTheme("dialog-ok").pixmap({48, 48}));
+  } else {
+    ui->lblSuccessFailImage->setPixmap(
+        QIcon::fromTheme("dialog-ok").pixmap({48, 48}));
     ui->lblInstallPrompt->setText(tr("Installation succeeded!"));
   }
   ui->lblSuccessFailImage->setVisible(true);
 }
 
-void Widget::readInstallLog()
-{
-  ui->textInstallLogs->textCursor().movePosition(QTextCursor::MoveOperation::End);
+void Widget::readInstallLog() {
+  ui->textInstallLogs->textCursor().movePosition(
+      QTextCursor::MoveOperation::End);
   ui->textInstallLogs->textCursor().insertText(m_installProcess.readAll());
   auto scroll = ui->textInstallLogs->verticalScrollBar();
   scroll->setValue(scroll->maximum());
 }
 
-void Widget::goBackDropArchive()
-{
+void Widget::goBackDropArchive() {
   const QString &dviWorkDir = findDVIWorkFile(tmpDir, true);
-  if(dviWorkDir == "")
-  {
+  if (dviWorkDir == "") {
     ui->btnUsePreviousExtraction->setVisible(false);
-  }
-  else
-  {
+  } else {
     QDir::setCurrent(dviWorkDir);
   }
   ui->mainPager->setCurrentIndex(0);
 }
 
-void Widget::changeTheme(bool aDark)
-{
-  if(aDark)
-  {
+void Widget::changeTheme(bool aDark) {
+  if (aDark) {
     ui->btnRefreshDeviceList->setIcon(QIcon(":/images/res/refresh-dark.svg"));
-    ui->btnQueryDeviceVentoyVer->setIcon(QPixmap(":/images/res/refresh-dark.svg"));
+    ui->btnQueryDeviceVentoyVer->setIcon(
+        QPixmap(":/images/res/refresh-dark.svg"));
     ui->lblPictureDropArchive->setPixmap(QPixmap(":/images/res/drop-dark.svg"));
-  }
-  else
-  {
+  } else {
     ui->btnRefreshDeviceList->setIcon(QIcon(":/images/res/refresh.svg"));
     ui->btnQueryDeviceVentoyVer->setIcon(QPixmap(":/images/res/refresh.svg"));
     ui->lblPictureDropArchive->setPixmap(QPixmap(":/images/res/drop.svg"));
   }
 }
 
-void Widget::queryDeviceList()
-{
+void Widget::queryDeviceList() {
   QProcess deviceQueryProc;
   deviceQueryProc.start("lsblk -d -o PATH,SIZE");
-  deviceQueryProc.waitForFinished(); // This shouldn't take too long so it's running blocking
+  deviceQueryProc.waitForFinished(); // This shouldn't take too long so it's
+                                     // running blocking
 
-  if(deviceQueryProc.exitCode())
-  {
+  if (deviceQueryProc.exitCode()) {
     QMessageBox errorMsgBox;
     errorMsgBox.setText(tr("Cannot query available devices; exit code: %1.")
-                        .arg(deviceQueryProc.exitCode()));
+                            .arg(deviceQueryProc.exitCode()));
     errorMsgBox.setDetailedText(deviceQueryProc.readAllStandardError());
     errorMsgBox.exec();
     return;
@@ -231,32 +209,31 @@ void Widget::queryDeviceList()
   QString deviceQueryResult = deviceQueryProc.readAllStandardOutput();
   QStringList devicePathList = deviceQueryResult.split("\n");
   devicePathList.removeFirst(); // First line would be "PATH"
-  devicePathList.removeLast(); // Last line would be empty, there is an '\n' in ouput at last
-  foreach (auto &&i, devicePathList)
-  {
+  devicePathList.removeLast();  // Last line would be empty, there is an '\n' in
+                                // ouput at last
+  foreach (auto &&i, devicePathList) {
     ui->selectDevice_combo->addItem(i, i.section(' ', 0, 0));
   }
 }
 
-void Widget::switchToInstaller()
-{
+void Widget::switchToInstaller() {
   emit getArchiveVentoyVersion();
   emit queryDeviceList();
   ui->mainPager->setCurrentIndex(1);
 }
 
-void Widget::verifyVentoyFeatures()
-{
-  enableCheckBox(m_archiveVer >= SemanticVersion(1, 0, 28), ui->chkUseCustomVolLabel);
-  enableCheckBox(m_archiveVer >= SemanticVersion(1, 0, 15), ui->chkUseGptPartTable);
-  enableCheckBox(m_archiveVer >= SemanticVersion(1, 0, 7), ui->chkEnableSecureBoot);
+void Widget::verifyVentoyFeatures() {
+  enableCheckBox(m_archiveVer >= SemanticVersion(1, 0, 28),
+                 ui->chkUseCustomVolLabel);
+  enableCheckBox(m_archiveVer >= SemanticVersion(1, 0, 15),
+                 ui->chkUseGptPartTable);
+  enableCheckBox(m_archiveVer >= SemanticVersion(1, 0, 7),
+                 ui->chkEnableSecureBoot);
 }
 
-void Widget::getArchiveVentoyVersion()
-{
+void Widget::getArchiveVentoyVersion() {
   QFile ventoyVersion("ventoy/version");
-  if(ventoyVersion.open(QFile::ReadWrite))
-  {
+  if (ventoyVersion.open(QFile::ReadWrite)) {
     QString version = ventoyVersion.readAll();
     version.chop(1);
     ui->lblSelectedVentoyVerVal->setText(version);
@@ -266,68 +243,55 @@ void Widget::getArchiveVentoyVersion()
   }
 }
 
-void Widget::installVentoy(const QString &aDevice, bool aIsUpdate, bool aIsForced,
-                           bool aUseGpt, bool aUseSecureBoot, const QString &aVolLabel)
-{
+void Widget::installVentoy(const QString &aDevice, bool aIsUpdate,
+                           bool aIsForced, bool aUseGpt, bool aUseSecureBoot,
+                           const QString &aVolLabel) {
   QStringList params;
 
-  if(aIsForced)
-  {
+  if (aIsForced) {
     params << "-I";
-  }
-  else
-  {
-    if(aIsUpdate)
-    {
+  } else {
+    if (aIsUpdate) {
       params << "-u";
-    }
-    else
-    {
+    } else {
       params << "-i";
     }
   }
   params << aDevice;
 
-  if(aUseGpt)
-  {
+  if (aUseGpt) {
     params << "-g";
   }
-  if(aUseSecureBoot)
-  {
+  if (aUseSecureBoot) {
     params << "-s";
   }
-  if(aVolLabel != "ventoy")
-  {
+  if (aVolLabel != "ventoy") {
     params << "-L" << aVolLabel;
   }
 
   m_installProcess.start("Ventoy2Disk.sh", params);
-  m_installProcess.write("y\ny\ny\ny\ny\ny\ny\ny\n"); // Gonna perform YES YES YES YES YES...
+  m_installProcess.write(
+      "y\ny\ny\ny\ny\ny\ny\ny\n"); // Gonna perform YES YES YES YES YES...
   ui->mainPager->setCurrentIndex(2);
   ui->btnBack->setVisible(false);
   ui->textInstallLogs->clear();
   ui->spinnerInstall->start();
 }
 
-void Widget::forceStopAll()
-{
+void Widget::forceStopAll() {
   m_installProcess.kill();
   m_unarchiveProcess.kill();
   m_installProcess.waitForFinished();
   m_unarchiveProcess.waitForFinished();
 }
 
-void Widget::getDeviceVentoyVersion()
-{
+void Widget::getDeviceVentoyVersion() {
   QProcess getDeviceVer;
   bool forceExit = false;
   QString vtoyfatPath;
-  if(m_archiveVer >= SemanticVersion(1, 0, 30))
-  {
+  if (m_archiveVer >= SemanticVersion(1, 0, 30)) {
     vtoyfatPath = "tool/x86_64/vtoyfat";
-  }
-  else
-  {
+  } else {
     vtoyfatPath = "tool/vtoyfat_32";
   }
 
@@ -335,110 +299,193 @@ void Widget::getDeviceVentoyVersion()
   getDeviceVer.waitForStarted();
   getDeviceVer.write(". tool/ventoy_lib.sh\n");
   getDeviceVer.write(QString("%1 `get_disk_part_name %2 2`\n")
-                     .arg(vtoyfatPath)
-                     .arg(ui->selectDevice_combo->currentData().toString()).toStdString().data());
+                         .arg(vtoyfatPath)
+                         .arg(ui->selectDevice_combo->currentData().toString())
+                         .toStdString()
+                         .data());
   getDeviceVer.write("exit\n");
-  if(!getDeviceVer.waitForFinished(100))
-  {
+  if (!getDeviceVer.waitForFinished(100)) {
     forceExit = true;
     getDeviceVer.kill();
     getDeviceVer.waitForFinished();
   }
-  qInfo() << getDeviceVer.exitCode() << forceExit << QString(getDeviceVer.readAllStandardError());
-  if(!getDeviceVer.exitCode() && !forceExit)
-  {
+  qInfo() << getDeviceVer.exitCode() << forceExit
+          << QString(getDeviceVer.readAllStandardError());
+  if (!getDeviceVer.exitCode() && !forceExit) {
     QString deviceVer = getDeviceVer.readAll();
     deviceVer.chop(1);
     ui->lblDeviceVentoyVerVal->setText(deviceVer);
     m_DeviceVer = deviceVer;
-  }
-  else
-  {
+  } else {
     ui->lblDeviceVentoyVerVal->setText("N/A");
     m_DeviceVer = SemanticVersion(0, 0, 0);
   }
 
-  if(!m_DeviceVer.invalid())
-  {
-    if(m_DeviceVer > m_archiveVer)
-    {
+  if (!m_DeviceVer.invalid()) {
+    if (m_DeviceVer > m_archiveVer) {
       ui->lblTips->setText(tr("Will force install to the drive!"));
-    }
-    else if (m_DeviceVer < m_archiveVer)
-    {
-      ui->lblTips->setText(tr("Will upgrade Ventoy. Volume label will remain untouched."));
-    }
-    else
-    {
+    } else if (m_DeviceVer < m_archiveVer) {
+      ui->lblTips->setText(
+          tr("Will upgrade Ventoy. Volume label will remain untouched."));
+    } else {
       ui->lblTips->clear();
     }
-  }
-  else
-  {
+  } else {
     ui->lblTips->clear();
   }
 }
 
-void Widget::initWidget()
-{
+void Widget::initWidget() {
   tmpDir = QDir("/tmp/dvtoyinst");
 
-  connect(DGuiApplicationHelper::instance(), &DGuiApplicationHelper::themeTypeChanged, this,
-          [&](DGuiApplicationHelper::ColorType themeType)
-          {
-            if(themeType == DGuiApplicationHelper::DarkType)
-            {
-                changeTheme(true);
+  connect(DGuiApplicationHelper::instance(),
+          &DGuiApplicationHelper::themeTypeChanged, this,
+          [&](DGuiApplicationHelper::ColorType themeType) {
+            if (themeType == DGuiApplicationHelper::DarkType) {
+              changeTheme(true);
+            } else {
+              changeTheme(false);
             }
-            else
-            {
-                changeTheme(false);
-            }
-          }
-         );
+          });
 
-  connect(ui->lblPictureDropArchive, SIGNAL(droppedArchive(QString, bool)), this, SLOT(processVentoyArchive(QString, bool)));
-  connect(&m_unarchiveProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-        [&](int exitCode, QProcess::ExitStatus exitStatus)
-        {
-          Q_UNUSED(exitCode);
-          Q_UNUSED(exitStatus);
-          finishedUnarchive();
-        });
-  connect(&m_installProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-        [&](int exitCode, QProcess::ExitStatus exitStatus)
-        {
-          Q_UNUSED(exitCode);
-          Q_UNUSED(exitStatus);
-          finishedInstallation();
-        });
-  connect(ui->btnQueryDeviceVentoyVer, SIGNAL(clicked()), this, SLOT(getDeviceVentoyVersion()));
-  connect(ui->btnRefreshDeviceList, SIGNAL(clicked()), this, SLOT(queryDeviceList()));
-  connect(ui->btnUsePreviousExtraction, SIGNAL(clicked()), this, SLOT(switchToInstaller()));
+  connect(ui->lblPictureDropArchive, SIGNAL(droppedArchive(QString, bool)),
+          this, SLOT(processVentoyArchive(QString, bool)));
+  connect(&m_unarchiveProcess,
+          QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+          [&](int exitCode, QProcess::ExitStatus exitStatus) {
+            Q_UNUSED(exitCode);
+            Q_UNUSED(exitStatus);
+            finishedUnarchive();
+          });
+  connect(&m_installProcess,
+          QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+          [&](int exitCode, QProcess::ExitStatus exitStatus) {
+            Q_UNUSED(exitCode);
+            Q_UNUSED(exitStatus);
+            finishedInstallation();
+          });
+  connect(ui->btnQueryDeviceVentoyVer, SIGNAL(clicked()), this,
+          SLOT(getDeviceVentoyVersion()));
+  connect(ui->btnRefreshDeviceList, SIGNAL(clicked()), this,
+          SLOT(queryDeviceList()));
+  connect(ui->btnUsePreviousExtraction, SIGNAL(clicked()), this,
+          SLOT(switchToInstaller()));
   connect(ui->btnInstall, SIGNAL(clicked()), this, SLOT(proceedInstallation()));
-  connect(ui->btnBack, &QPushButton::clicked, [&](){ ui->mainPager->setCurrentIndex(1); });
+  connect(ui->btnBack, &QPushButton::clicked,
+          [&]() { ui->mainPager->setCurrentIndex(1); });
 
-  connect(&m_installProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(readInstallLog()));
+  connect(&m_installProcess, SIGNAL(readyReadStandardOutput()), this,
+          SLOT(readInstallLog()));
 
   ui->lblSuccessFailImage->setVisible(false);
   ui->textInstallLogs->setReadOnly(true);
+
+  m_networkManager = new QNetworkAccessManager(this);
+  m_currentDownload = nullptr;
+
   goBackDropArchive();
 }
 
-void Widget::on_chkUseCustomVolLabel_stateChanged(int checkState)
-{
-  if(checkState == Qt::CheckState::Checked)
-  {
-    ui->lineCustomVolLabel->setEnabled(true);
+void Widget::on_btnDownloadLatest_clicked() {
+  ui->btnDownloadLatest->setEnabled(false);
+  ui->lblHintDropArchive->setText(tr("Fetching latest release information..."));
+
+  QNetworkRequest request(
+      QUrl("https://api.github.com/repos/ventoy/Ventoy/releases/latest"));
+  request.setHeader(QNetworkRequest::UserAgentHeader, "DeepinVentoyInstaller");
+
+  QNetworkReply *reply = m_networkManager->get(request);
+  connect(reply, &QNetworkReply::finished,
+          [this, reply]() { onLatestReleaseInfoFetched(reply); });
+}
+
+void Widget::onLatestReleaseInfoFetched(QNetworkReply *reply) {
+  reply->deleteLater();
+  if (reply->error() != QNetworkReply::NoError) {
+    ui->lblHintDropArchive->setText(
+        tr("Failed to fetch release info: %1").arg(reply->errorString()));
+    ui->btnDownloadLatest->setEnabled(true);
+    return;
   }
-  else
-  {
+
+  QJsonDocument json = QJsonDocument::fromJson(reply->readAll());
+  QJsonObject root = json.object();
+  QJsonArray assets = root["assets"].toArray();
+
+  QString downloadUrl;
+  QString fileName;
+
+  for (const QJsonValue &value : assets) {
+    QJsonObject asset = value.toObject();
+    QString name = asset["name"].toString();
+    if (name.endsWith("-linux.tar.gz")) {
+      downloadUrl = asset["browser_download_url"].toString();
+      fileName = name;
+      break;
+    }
+  }
+
+  if (downloadUrl.isEmpty()) {
+    ui->lblHintDropArchive->setText(
+        tr("Could not find Linux archive in latest release."));
+    ui->btnDownloadLatest->setEnabled(true);
+    return;
+  }
+
+  ui->lblHintDropArchive->setText(tr("Downloading %1...").arg(fileName));
+
+  QNetworkRequest request(downloadUrl);
+  request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+  m_currentDownload = m_networkManager->get(request);
+
+  connect(m_currentDownload, &QNetworkReply::downloadProgress, this,
+          &Widget::onDownloadProgress);
+  connect(m_currentDownload, &QNetworkReply::finished,
+          [this]() { onArchiveDownloaded(m_currentDownload); });
+}
+
+void Widget::onArchiveDownloaded(QNetworkReply *reply) {
+  reply->deleteLater();
+  m_currentDownload = nullptr;
+
+  if (reply->error() != QNetworkReply::NoError) {
+    ui->lblHintDropArchive->setText(
+        tr("Download failed: %1").arg(reply->errorString()));
+    ui->btnDownloadLatest->setEnabled(true);
+    return;
+  }
+
+  QTemporaryFile *tempFile = new QTemporaryFile(this);
+  tempFile->setFileTemplate(QDir::tempPath() + "/ventoy-XXXXXX.tar.gz");
+  if (tempFile->open()) {
+    tempFile->write(reply->readAll());
+    QString path = tempFile->fileName();
+    tempFile->close();
+
+    ui->lblHintDropArchive->setText(tr("Download complete. Extracting..."));
+    processVentoyArchive(path, false);
+  } else {
+    ui->lblHintDropArchive->setText(tr("Failed to save downloaded file."));
+    ui->btnDownloadLatest->setEnabled(true);
+  }
+}
+
+void Widget::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal) {
+  if (bytesTotal > 0) {
+    int percentage = static_cast<int>(bytesReceived * 100 / bytesTotal);
+    ui->lblHintDropArchive->setText(tr("Downloading... %1%").arg(percentage));
+  }
+}
+
+void Widget::on_chkUseCustomVolLabel_stateChanged(int checkState) {
+  if (checkState == Qt::CheckState::Checked) {
+    ui->lineCustomVolLabel->setEnabled(true);
+  } else {
     ui->lineCustomVolLabel->setEnabled(false);
   }
 }
 
-void Widget::on_selectDevice_combo_currentIndexChanged(int index)
-{
+void Widget::on_selectDevice_combo_currentIndexChanged(int index) {
   Q_UNUSED(index);
   getDeviceVentoyVersion();
 }
