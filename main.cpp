@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
   DApplication a(argc, argv);
 
   a.setAttribute(Qt::AA_UseHighDpiPixmaps);
-  a.loadTranslator("translations");
+  a.loadTranslator(QList<QLocale>() << QLocale::Spanish << QLocale::Chinese << QLocale::Portuguese << QLocale::Italian << QLocale::French);
   a.setOrganizationName("0x4C57 Technology Group");
   a.setApplicationVersion(DApplication::buildVersion("1.0.1"));
   // a.setApplicationAcknowledgementPage("https://你的网站");
