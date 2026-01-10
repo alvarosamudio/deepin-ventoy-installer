@@ -46,4 +46,23 @@ RESOURCES += \
     res.qrc
 
 TRANSLATIONS += translations/dvtoyinst_zh.ts \
-                translations/dvtoyinst_es.ts
+                translations/dvtoyinst_es.ts \
+                translations/dvtoyinst_pt.ts \
+                translations/dvtoyinst_it.ts \
+                translations/dvtoyinst_fr.ts
+
+# Installation
+target.path = /usr/bin
+desktop.path = /usr/share/applications
+desktop.files = dvtoyinst.desktop
+icon.path = /usr/share/icons/hicolor/512x512/apps
+icon.files = res/dvtoyinst.png
+
+qm.path = /usr/share/deepin-ventoy-installer/translations
+qm.files = translations/dvtoyinst_zh.qm \
+           translations/dvtoyinst_es.qm \
+           translations/dvtoyinst_pt.qm \
+           translations/dvtoyinst_it.qm \
+           translations/dvtoyinst_fr.qm
+
+INSTALLS += target desktop icon qm

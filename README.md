@@ -18,19 +18,30 @@ A modern, easy-to-use Ventoy installer front-end built with DTK (Deepin ToolKit)
 - Root privileges (for writing to USB drives)
 - Internet connection (for the "Download Latest" feature)
 
-## Building
+## Supported Languages
 
-To build the project, you need the DTK development environment installed.
+- English
+- Chinese (Simplified)
+- Spanish
+- Portuguese
+- Italian
+- French
+
+## Build
+
+### Prerequisites
+
+- qt5-default
+- libdtkwidget-dev
+- qttools5-dev-tools
+
+### Compile
 
 ```bash
-# Install dependencies (example for Deepin)
-sudo apt install libdtkwidget-dev qt5-default
-
 # Clone the repository
 git clone https://github.com/alvarosamudio/deepin-ventoy-installer.git
 cd deepin-ventoy-installer
 
-# Build the project
 qmake
 make
 ```
