@@ -1,0 +1,18 @@
+[Desktop Entry]
+Name=Deepin Ventoy Installer
+Name[zh_CN]=Deepin Ventoy 安装器
+Name[es]=Instalador de Ventoy para Deepin
+Name[pt]=Instalador Deepin Ventoy
+Name[it]=Deepin Ventoy Installer
+Name[fr]=Installateur Deepin Ventoy
+Comment=An installer for Ventoy on Deepin
+Comment[zh_CN]=在 Deepin 上安装 Ventoy 的工具
+Comment[es]=Un instalador para Ventoy en Deepin
+Comment[pt]=Um instalador para Ventoy no Deepin
+Comment[it]=Un installatore per Ventoy su Deepin
+Comment[fr]=Un installateur pour Ventoy sur Deepin
+Exec=dvtoyinst
+Icon=icon
+Terminal=false
+Type=Application
+Categories=Utility;System;
