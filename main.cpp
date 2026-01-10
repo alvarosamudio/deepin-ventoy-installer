@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
   a.setOrganizationName("0x4C57 Technology Group");
   a.setApplicationVersion(DApplication::buildVersion("1.0.1"));
   // a.setApplicationAcknowledgementPage("https://你的网站");
-  a.setProductIcon(QIcon(":/images/res/icon.png")); // 设置Logo
+  a.setProductIcon(QIcon(":/images/res/dvtoyinst.png")); // 设置Logo
   a.setProductName(QObject::tr("Deepin Ventoy Installer"));
   a.setApplicationDescription(
       QObject::tr("A Ventoy installer front-end written with DTK."));
