@@ -60,6 +60,7 @@ named &quot;ventoy-x.y.z-linux.tar.gz&quot; here</string>
          </property>
         </widget>
        </item>
+       <item>
         <widget class="QPushButton" name="btnDownloadLatest">
          <property name="text">
           <string>Download Latest</string>
