@@ -41,7 +41,7 @@ void DVIDropArea::dropEvent(QDropEvent *event)
   const QString &mimeStr = mimeData->text();
   QFileInfo fileInfo;
   bool noTest = false;
-  if(event->keyboardModifiers().testFlag(Qt::KeyboardModifier::ShiftModifier))
+  if(event->modifiers().testFlag(Qt::KeyboardModifier::ShiftModifier))
   {
     noTest = true;
   }

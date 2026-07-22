@@ -3,6 +3,7 @@
 
 #include "utilities.h"
 
+#include <DSpinner>
 #include <QDir>
 #include <QFile>
 #include <QJsonArray>

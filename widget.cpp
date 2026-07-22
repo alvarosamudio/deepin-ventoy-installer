@@ -1,5 +1,6 @@
 #include <DDialog>
 #include <DGuiApplicationHelper>
+#include <DSpinner>
 #include <QMessageBox>
 #include <QNetworkRequest>
 #include <QProcess>
@@ -8,12 +9,13 @@
 #include <QTemporaryFile>
 #include <QUrl>
 
-#include "ui_widget.h"
 #include "utilities.h"
 #include "widget.h"
 
-using namespace Dtk::Gui;
-using namespace Dtk::Widget;
+DWIDGET_USE_NAMESPACE
+DGUI_USE_NAMESPACE
+
+#include "ui_widget.h"
 
 Widget::Widget(QWidget *parent) : QWidget(parent), ui(new Ui::Widget) {
   ui->setupUi(this);
@@ -435,7 +437,8 @@ void Widget::onLatestReleaseInfoFetched(QNetworkReply *reply) {
   ui->lblHintDropArchive->setText(tr("Downloading %1...").arg(fileName));
 
   QNetworkRequest request(downloadUrl);
-  request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+  request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
+                        QNetworkRequest::NoLessSafeRedirectPolicy);
   m_currentDownload = m_networkManager->get(request);
 
   connect(m_currentDownload, &QNetworkReply::downloadProgress, this,
