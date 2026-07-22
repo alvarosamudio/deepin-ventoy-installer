@@ -20,25 +20,18 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            qt5-qmake \
-            qtbase5-dev \
-            qttools5-dev-tools \
-            libdtkwidget-dev \
+            cmake \
+            qt6-base-dev \
+            qt6-tools-dev \
+            qt6-tools-dev-tools \
+            libdtk6widget-dev \
             debhelper \
             pkg-config
 
-      - name: Compile translations
-        run: |
-          for ts in translations/*.ts; do
-            if [ -f "$ts" ]; then
-              lrelease "$ts" -qm "${ts%.ts}.qm"
-            fi
-          done
-
       - name: Build application
         run: |
-          qmake DeepinVentoyInstaller.pro
-          make -j$(nproc)
+          cmake -B build -DCMAKE_INSTALL_PREFIX=/usr
+          cmake --build build -j$(nproc)
 
       - name: Prepare DEB structure
         run: |
@@ -48,7 +41,7 @@ jobs:
           mkdir -p debian/deepin-ventoy-installer/usr/share/deepin-ventoy-installer/translations
 
           # Copy binary
-          cp dvtoyinst debian/deepin-ventoy-installer/usr/bin/
+          cp build/deepin-ventoy-installer debian/deepin-ventoy-installer/usr/bin/
 
           # Copy desktop file
           cp dvtoyinst.desktop debian/deepin-ventoy-installer/usr/share/applications/
@@ -57,15 +50,15 @@ jobs:
           cp res/dvtoyinst.png debian/deepin-ventoy-installer/usr/share/icons/hicolor/512x512/apps/
 
           # Copy translations
-          cp translations/*.qm debian/deepin-ventoy-installer/usr/share/deepin-ventoy-installer/translations/
+          cp build/*.qm debian/deepin-ventoy-installer/usr/share/deepin-ventoy-installer/translations/ 2>/dev/null || true
 
       - name: Create DEB package with maximum compression
         run: |
-          dpkg-deb -Zxz -z9 --build debian/deepin-ventoy-installer deepin-ventoy-installer_1.0.0-1_amd64.deb
+          dpkg-deb -Zxz -z9 --build debian/deepin-ventoy-installer deepin-ventoy-installer_1.1.0-1_amd64.deb
 
       - name: Upload DEB package
         uses: actions/upload-artifact@v4
         with:
           name: deepin-ventoy-installer.deb
-          path: deepin-ventoy-installer_1.0.0-1_amd64.deb
+          path: deepin-ventoy-installer_1.1.0-1_amd64.deb
 
