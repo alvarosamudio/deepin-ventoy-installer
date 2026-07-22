@@ -66,11 +66,11 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
 
 set(TS_FILES
-    translations/dvtoyinst_zh.ts
-    translations/dvtoyinst_es.ts
-    translations/dvtoyinst_pt.ts
-    translations/dvtoyinst_it.ts
-    translations/dvtoyinst_fr.ts
+    src/translations/dvtoyinst_zh.ts
+    src/translations/dvtoyinst_es.ts
+    src/translations/dvtoyinst_pt.ts
+    src/translations/dvtoyinst_it.ts
+    src/translations/dvtoyinst_fr.ts
 )
 
 qt_add_translations(${PROJECT_NAME}
@@ -80,11 +80,11 @@ qt_add_translations(${PROJECT_NAME}
 
 # Installation
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-install(FILES dvtoyinst.desktop DESTINATION share/applications)
+install(FILES src/dvtoyinst.desktop DESTINATION share/applications)
 install(FILES src/res/dvtoyinst.png DESTINATION share/icons/hicolor/512x512/apps)
 
 foreach(_lang zh es pt it fr)
-    install(FILES "translations/dvtoyinst_${_lang}.qm"
+    install(FILES "src/translations/dvtoyinst_${_lang}.qm"
             DESTINATION share/deepin-ventoy-installer/translations
             OPTIONAL)
 endforeach()
