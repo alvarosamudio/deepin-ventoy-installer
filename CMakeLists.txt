@@ -16,26 +16,26 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network)
 find_package(Dtk6 REQUIRED COMPONENTS Widget)
 
 set(SOURCES
-    main.cpp
-    mainwindow.cpp
-    widget.cpp
-    dvidroparea.cpp
-    utilities.cpp
+    src/main.cpp
+    src/mainwindow.cpp
+    src/widget.cpp
+    src/dvidroparea.cpp
+    src/utilities.cpp
 )
 
 set(HEADERS
-    mainwindow.h
-    widget.h
-    dvidroparea.h
-    utilities.h
+    src/mainwindow.h
+    src/widget.h
+    src/dvidroparea.h
+    src/utilities.h
 )
 
 set(UI_FILES
-    widget.ui
+    src/widget.ui
 )
 
 set(RESOURCES
-    res.qrc
+    src/res.qrc
 )
 
 add_executable(${PROJECT_NAME}
@@ -46,7 +46,7 @@ add_executable(${PROJECT_NAME}
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -81,7 +81,7 @@ qt_add_translations(${PROJECT_NAME}
 # Installation
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 install(FILES dvtoyinst.desktop DESTINATION share/applications)
-install(FILES res/dvtoyinst.png DESTINATION share/icons/hicolor/512x512/apps)
+install(FILES src/res/dvtoyinst.png DESTINATION share/icons/hicolor/512x512/apps)
 
 foreach(_lang zh es pt it fr)
     install(FILES "translations/dvtoyinst_${_lang}.qm"

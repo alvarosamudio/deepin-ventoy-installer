@@ -424,7 +424,7 @@ in Device</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="res.qrc"/>
+   <include location="res.qrc"/>
  </resources>
  <connections/>
 </ui>
