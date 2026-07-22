@@ -2,6 +2,7 @@
 #include "utilities.h"
 
 #include <DApplication>
+#include <DGuiApplicationHelper>
 #include <DWidgetUtil>
 
 DWIDGET_USE_NAMESPACE
@@ -18,7 +19,10 @@ int main(int argc, char *argv[]) {
   a.setProductName(QObject::tr("Deepin Ventoy Installer"));
   a.setApplicationDescription(
       QObject::tr("A Ventoy installer front-end written with DTK."));
-  a.setApplicationName("Deepin Ventoy Installer");
+  a.setApplicationName("deepin-ventoy-installer");
+
+  Dtk::Gui::DGuiApplicationHelper::instance()->setAttribute(
+      Dtk::Gui::DGuiApplicationHelper::UseInactiveColorGroup, false);
 
   rerunOnNonRoot();
 

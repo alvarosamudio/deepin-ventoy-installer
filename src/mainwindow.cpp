@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     w = new Widget;
 
-    resize(w->size()); //设置窗口大小
+    resize(w->size());
     setCentralWidget(w);
     initWindow();
 }
@@ -29,7 +29,8 @@ void MainWindow::closeEvent(QCloseEvent *e)
                           "Continue?"));
     askExit.setTitle(tr("Exit"));
     askExit.setIcon(QIcon::fromTheme("dialog-warning"));
-    askExit.addButtons({ tr("Yes"), tr("No") });
+    askExit.addButton(tr("Yes"), true, DDialog::ButtonRecommend);
+    askExit.addButton(tr("No"), false, DDialog::ButtonNormal);
     if(askExit.exec() == 0)
     {
       w->forceStopAll();
@@ -54,5 +55,7 @@ void MainWindow::initWindow()
   QMenu *menu = new QMenu(this->titlebar());
   menu->addAction(actGoDropArchive);
   this->titlebar()->setMenu(menu);
-  this->titlebar()->setIcon(QIcon(":/images/res/icon.png"));
+  this->titlebar()->setIcon(QIcon(":/images/res/dvtoyinst.png"));
+  this->titlebar()->setTitle(tr("Deepin Ventoy Installer"));
+  this->setWindowTitle(tr("Deepin Ventoy Installer"));
 }

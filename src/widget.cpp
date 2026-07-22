@@ -1,11 +1,9 @@
 #include <DDialog>
 #include <DGuiApplicationHelper>
 #include <DSpinner>
-#include <QMessageBox>
 #include <QNetworkRequest>
 #include <QProcess>
 #include <QScrollBar>
-#include <QStorageInfo>
 #include <QTemporaryFile>
 #include <QUrl>
 
@@ -48,15 +46,17 @@ void Widget::finishedUnarchive() {
   case 1:
     qInfo() << "Extracted files differ; they have been updated.";
     break;
-  default:
-    QMessageBox failExtractMsg;
-    failExtractMsg.setText(tr("Extraction of the selected archive was not "
+  default: {
+    DDialog failExtractMsg;
+    failExtractMsg.setTitle(tr("Extraction Error"));
+    failExtractMsg.setMessage(tr("Extraction of the selected archive was not "
                               "successful; exit code: %1.")
                                .arg(m_unarchiveProcess.exitCode()));
-    failExtractMsg.setIcon(QMessageBox::Critical);
-    failExtractMsg.setDetailedText(m_unarchiveProcess.readAllStandardError());
+    failExtractMsg.setIcon(QIcon::fromTheme("dialog-error"));
+    failExtractMsg.addButton(tr("OK"), true, DDialog::ButtonNormal);
     failExtractMsg.exec();
     return;
+  }
   }
   tmpDir.cd(tmpDir.path());
 
@@ -65,10 +65,12 @@ void Widget::finishedUnarchive() {
 
   QString dviWorkDir = findDVIWorkFile(tmpDir, m_noTestVentoy);
   if (dviWorkDir == "") {
-    QMessageBox failFindScriptMsg;
-    failFindScriptMsg.setText(
+    DDialog failFindScriptMsg;
+    failFindScriptMsg.setTitle(tr("Error"));
+    failFindScriptMsg.setMessage(
         tr("No working Ventoy build can be found in the extracted archive."));
-    failFindScriptMsg.setIcon(QMessageBox::Critical);
+    failFindScriptMsg.setIcon(QIcon::fromTheme("dialog-error"));
+    failFindScriptMsg.addButton(tr("OK"), true, DDialog::ButtonNormal);
     failFindScriptMsg.exec();
     return;
   }
@@ -198,10 +200,12 @@ void Widget::queryDeviceList() {
                                      // running blocking
 
   if (deviceQueryProc.exitCode()) {
-    QMessageBox errorMsgBox;
-    errorMsgBox.setText(tr("Cannot query available devices; exit code: %1.")
+    DDialog errorMsgBox;
+    errorMsgBox.setTitle(tr("Error"));
+    errorMsgBox.setMessage(tr("Cannot query available devices; exit code: %1.")
                             .arg(deviceQueryProc.exitCode()));
-    errorMsgBox.setDetailedText(deviceQueryProc.readAllStandardError());
+    errorMsgBox.setIcon(QIcon::fromTheme("dialog-error"));
+    errorMsgBox.addButton(tr("OK"), true, DDialog::ButtonNormal);
     errorMsgBox.exec();
     return;
   }
@@ -481,10 +485,11 @@ void Widget::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal) {
 }
 
 void Widget::on_chkUseCustomVolLabel_stateChanged(int checkState) {
-  if (checkState == Qt::CheckState::Checked) {
-    ui->lineCustomVolLabel->setEnabled(true);
-  } else {
-    ui->lineCustomVolLabel->setEnabled(false);
+  bool checked = (checkState == Qt::CheckState::Checked);
+  ui->lineCustomVolLabel->setEnabled(checked);
+  ui->lineCustomVolLabel->lineEdit()->setEnabled(checked);
+  if (!checked) {
+    ui->lineCustomVolLabel->lineEdit()->clear();
   }
 }
 

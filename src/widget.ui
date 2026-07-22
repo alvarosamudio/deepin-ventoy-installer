@@ -29,7 +29,7 @@
    <item>
     <widget class="QStackedWidget" name="mainPager">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="pageDropArchive">
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -87,7 +87,7 @@ named &quot;ventoy-x.y.z-linux.tar.gz&quot; here</string>
           <enum>QLayout::SetMinAndMaxSize</enum>
          </property>
          <item>
-          <widget class="QComboBox" name="selectDevice_combo">
+          <widget class="DComboBox" name="selectDevice_combo">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -127,7 +127,7 @@ named &quot;ventoy-x.y.z-linux.tar.gz&quot; here</string>
           <enum>QLayout::SetMinimumSize</enum>
          </property>
          <item row="0" column="0">
-          <widget class="QLabel" name="lblSelectedVentoyVerText">
+          <widget class="DLabel" name="lblSelectedVentoyVerText">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -160,7 +160,7 @@ Archive Version</string>
           </spacer>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="lblSelectedVentoyVerVal">
+          <widget class="DLabel" name="lblSelectedVentoyVerVal">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -176,7 +176,7 @@ Archive Version</string>
           </widget>
          </item>
          <item row="2" column="2">
-          <widget class="QLabel" name="lblDeviceVentoyVerVal">
+          <widget class="DLabel" name="lblDeviceVentoyVerVal">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -192,7 +192,7 @@ Archive Version</string>
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QLabel" name="lblDeviceVentoyVerText">
+          <widget class="DLabel" name="lblDeviceVentoyVerText">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -212,7 +212,7 @@ in Device</string>
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QLabel" name="lblRightHandArrow">
+          <widget class="DLabel" name="lblRightHandArrow">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -220,7 +220,10 @@ in Device</string>
             </sizepolicy>
            </property>
            <property name="text">
-            <string/>
+            <string>&#x2192;</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -257,7 +260,7 @@ in Device</string>
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="lblTips">
+        <widget class="DLabel" name="lblTips">
          <property name="text">
           <string/>
          </property>
@@ -302,15 +305,9 @@ in Device</string>
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineCustomVolLabel">
+             <widget class="DLineEdit" name="lineCustomVolLabel">
               <property name="enabled">
                <bool>false</bool>
-              </property>
-              <property name="acceptDrops">
-               <bool>true</bool>
-              </property>
-              <property name="placeholderText">
-               <string>ventoy</string>
               </property>
              </widget>
             </item>
@@ -368,7 +365,7 @@ in Device</string>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="lblInstallPrompt">
+          <widget class="DLabel" name="lblInstallPrompt">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -421,6 +418,21 @@ in Device</string>
    <extends>QWidget</extends>
    <header>dspinner.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DLabel</class>
+   <extends>QLabel</extends>
+   <header>dlabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DComboBox</class>
+   <extends>QComboBox</extends>
+   <header>dcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DLineEdit</class>
+   <extends>QWidget</extends>
+   <header>dlineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>
