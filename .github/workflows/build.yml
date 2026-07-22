@@ -44,10 +44,10 @@ jobs:
           cp build/deepin-ventoy-installer debian/deepin-ventoy-installer/usr/bin/
 
           # Copy desktop file
-          cp dvtoyinst.desktop debian/deepin-ventoy-installer/usr/share/applications/
+          cp src/dvtoyinst.desktop debian/deepin-ventoy-installer/usr/share/applications/
 
           # Copy icon
-          cp res/dvtoyinst.png debian/deepin-ventoy-installer/usr/share/icons/hicolor/512x512/apps/
+          cp src/res/dvtoyinst.png debian/deepin-ventoy-installer/usr/share/icons/hicolor/512x512/apps/
 
           # Copy translations
           cp build/*.qm debian/deepin-ventoy-installer/usr/share/deepin-ventoy-installer/translations/ 2>/dev/null || true
