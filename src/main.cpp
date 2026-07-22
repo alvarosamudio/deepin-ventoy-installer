@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "utilities.h"
 
+#include <cstdlib>
 #include <DApplication>
 #include <DGuiApplicationHelper>
 #include <DWidgetUtil>
@@ -8,6 +9,10 @@
 DWIDGET_USE_NAMESPACE
 
 int main(int argc, char *argv[]) {
+  if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORMTHEME")) {
+    setenv("QT_QPA_PLATFORMTHEME", "deepin", 1);
+  }
+
   DApplication a(argc, argv);
 
   a.loadTranslator(QList<QLocale>() << QLocale::Spanish << QLocale::Chinese
