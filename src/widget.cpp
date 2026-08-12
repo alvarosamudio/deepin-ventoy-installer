@@ -36,7 +36,7 @@ void Widget::processVentoyArchive(QString aPath, bool aNoTest) {
   tmpDir.mkpath(tmpDir.path());
   m_noTestVentoy = aNoTest;
   m_unarchiveProcess.start(
-      QString("tar -xavf %1 -C %2").arg(QUrl(aPath).path()).arg(tmpDir.path()));
+      "tar", {"-xavf", QUrl(aPath).path(), "-C", tmpDir.path()});
 }
 
 void Widget::finishedUnarchive() {
@@ -195,7 +195,7 @@ void Widget::changeTheme(bool aDark) {
 
 void Widget::queryDeviceList() {
   QProcess deviceQueryProc;
-  deviceQueryProc.start("lsblk -d -o PATH,SIZE");
+  deviceQueryProc.start("lsblk", {"-d", "-o", "PATH,SIZE"});
   deviceQueryProc.waitForFinished(); // This shouldn't take too long so it's
                                      // running blocking
 
