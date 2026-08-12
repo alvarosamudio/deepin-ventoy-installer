@@ -4,6 +4,7 @@
 #include <QNetworkRequest>
 #include <QProcess>
 #include <QScrollBar>
+#include <QSettings>
 #include <QTemporaryFile>
 #include <QUrl>
 
@@ -244,6 +245,8 @@ void Widget::getArchiveVentoyVersion() {
     version.chop(1);
     ui->lblSelectedVentoyVerVal->setText(version);
     m_archiveVer = version;
+    QSettings settings;
+    settings.setValue("lastVentoyVersion", version);
     verifyVentoyFeatures();
     ventoyVersion.close();
   }
@@ -389,11 +392,18 @@ void Widget::initWidget() {
 
   m_networkManager = new QNetworkAccessManager(this);
   m_currentDownload = nullptr;
+  m_downloadRequested = false;
 
   goBackDropArchive();
+  checkForUpdates();
 }
 
 void Widget::on_btnDownloadLatest_clicked() {
+  m_downloadRequested = true;
+  checkForUpdates();
+}
+
+void Widget::checkForUpdates() {
   ui->btnDownloadLatest->setEnabled(false);
   ui->lblHintDropArchive->setText(tr("Fetching latest release information..."));
 
@@ -417,39 +427,89 @@ void Widget::onLatestReleaseInfoFetched(QNetworkReply *reply) {
 
   QJsonDocument json = QJsonDocument::fromJson(reply->readAll());
   QJsonObject root = json.object();
-  QJsonArray assets = root["assets"].toArray();
-
-  QString downloadUrl;
-  QString fileName;
-
-  for (const QJsonValue &value : assets) {
-    QJsonObject asset = value.toObject();
-    QString name = asset["name"].toString();
-    if (name.endsWith("-linux.tar.gz")) {
-      downloadUrl = asset["browser_download_url"].toString();
-      fileName = name;
-      break;
-    }
+  QString tagName = root["tag_name"].toString();
+  if (tagName.startsWith('v')) {
+    tagName.remove(0, 1);
   }
-
-  if (downloadUrl.isEmpty()) {
+  m_latestAvailableVer = SemanticVersion(tagName);
+  if (m_latestAvailableVer.invalid()) {
     ui->lblHintDropArchive->setText(
-        tr("Could not find Linux archive in latest release."));
+        tr("Could not parse the latest release version."));
     ui->btnDownloadLatest->setEnabled(true);
     return;
   }
 
-  ui->lblHintDropArchive->setText(tr("Downloading %1...").arg(fileName));
+  if (m_downloadRequested) {
+    m_downloadRequested = false;
+    QJsonArray assets = root["assets"].toArray();
 
-  QNetworkRequest request(downloadUrl);
-  request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
-                        QNetworkRequest::NoLessSafeRedirectPolicy);
-  m_currentDownload = m_networkManager->get(request);
+    QString downloadUrl;
+    QString fileName;
 
-  connect(m_currentDownload, &QNetworkReply::downloadProgress, this,
-          &Widget::onDownloadProgress);
-  connect(m_currentDownload, &QNetworkReply::finished,
-          [this]() { onArchiveDownloaded(m_currentDownload); });
+    for (const QJsonValue &value : assets) {
+      QJsonObject asset = value.toObject();
+      QString name = asset["name"].toString();
+      if (name.endsWith("-linux.tar.gz")) {
+        downloadUrl = asset["browser_download_url"].toString();
+        fileName = name;
+        break;
+      }
+    }
+
+    if (downloadUrl.isEmpty()) {
+      ui->lblHintDropArchive->setText(
+          tr("Could not find Linux archive in latest release."));
+      ui->btnDownloadLatest->setEnabled(true);
+      return;
+    }
+
+    ui->lblHintDropArchive->setText(tr("Downloading %1...").arg(fileName));
+
+    QNetworkRequest request(downloadUrl);
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
+                         QNetworkRequest::NoLessSafeRedirectPolicy);
+    m_currentDownload = m_networkManager->get(request);
+
+    connect(m_currentDownload, &QNetworkReply::downloadProgress, this,
+            &Widget::onDownloadProgress);
+    connect(m_currentDownload, &QNetworkReply::finished,
+            [this]() { onArchiveDownloaded(m_currentDownload); });
+  } else {
+    notifyUpdateAvailability();
+  }
+}
+
+void Widget::notifyUpdateAvailability() {
+  ui->btnDownloadLatest->setEnabled(true);
+
+  QSettings settings;
+  SemanticVersion lastVer(settings.value("lastVentoyVersion").toString());
+  if (lastVer.invalid()) {
+    ui->lblHintDropArchive->setText(
+        tr("Latest Ventoy available: %1. Click \"Download Latest\" to get it.")
+            .arg(QString(m_latestAvailableVer)));
+    return;
+  }
+
+  if (lastVer < m_latestAvailableVer) {
+    DDialog updateMsg;
+    updateMsg.setTitle(tr("Update Available"));
+    updateMsg.setMessage(tr("A new version of Ventoy is available: %1.\n"
+                            "You currently have: %2.\n\nDownload it now?")
+                             .arg(QString(m_latestAvailableVer))
+                             .arg(QString(lastVer)));
+    updateMsg.setIcon(QIcon::fromTheme("dialog-information"));
+    updateMsg.addButton(tr("Download"), true, DDialog::ButtonRecommend);
+    updateMsg.addButton(tr("Later"), false, DDialog::ButtonNormal);
+    if (updateMsg.exec() == 0) {
+      m_downloadRequested = true;
+      checkForUpdates();
+    }
+  } else {
+    ui->lblHintDropArchive->setText(
+        tr("You have the latest Ventoy version (%1).")
+            .arg(QString(lastVer)));
+  }
 }
 
 void Widget::onArchiveDownloaded(QNetworkReply *reply) {

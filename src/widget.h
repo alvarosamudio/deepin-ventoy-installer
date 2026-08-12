@@ -101,6 +101,17 @@ private:
   void getArchiveVentoyVersion();
 
   /**
+   * @brief fetch the latest release info from GitHub, to check for updates.
+   */
+  void checkForUpdates();
+
+  /**
+   * @brief compare latest available version against last downloaded one and
+   * notify the user if an update is available.
+   */
+  void notifyUpdateAvailability();
+
+  /**
    * @brief install Ventoy to the specified device
    * @param aDevice the target device to install into
    * @param aIsUpdate is going to update rather than install
@@ -120,6 +131,8 @@ private:
   QNetworkAccessManager *m_networkManager;
   QNetworkReply *m_currentDownload;
   SemanticVersion m_archiveVer, m_DeviceVer;
+  SemanticVersion m_latestAvailableVer;
+  bool m_downloadRequested;
   QAction *actGoDropArchive;
   bool m_noTestVentoy;
 };
