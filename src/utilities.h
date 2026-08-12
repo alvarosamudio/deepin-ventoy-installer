@@ -24,7 +24,7 @@ struct SemanticVersion
     }
     return true;
   }
-  bool operator>(const SemanticVersion& a) { return !(*this < a); }
+  bool operator>(const SemanticVersion& a) { return !(*this < a) && !(*this == a); }
   bool operator<=(const SemanticVersion& a) { return ((*this < a) || (*this == a));}
   bool operator>=(const SemanticVersion& a) { return (!(*this < a)) || (*this == a); }
   operator QString() { return QString("%1.%2.%3").arg(major).arg(minor).arg(patch); }
