@@ -35,18 +35,22 @@ QString findDVIWorkFile(const QDir &dviTmpDir, bool aNoTest)
   {
     if(!helpScriptInfo.isExecutable())
     {
-      QFile::setPermissions(helpScriptInfo.path(), QFile::ExeUser | QFile::ReadUser);
+      QFile::setPermissions(helpScriptInfo.filePath(),
+                            QFile::ExeUser | QFile::ReadUser);
     }
     QProcess runTest;
     runTest.setWorkingDirectory(ventoyDir.absolutePath());
-    runTest.start("Ventoy2Disk.sh"); // Decompress tools first then we run test
+    // Ventoy2Disk.sh decompresses the bundled tool binaries (tool/<arch>/*.xz)
+    // before doing anything else, even in its usage path.
+    runTest.start("sh", {"Ventoy2Disk.sh"});
     runTest.waitForFinished();
     runTest.start("sh");
     runTest.waitForStarted();
+    runTest.write("export PATH=$PWD/tool/x86_64:$PATH \n");
     runTest.write(". tool/ventoy_lib.sh \n");
     runTest.write("check_tool_work_ok \n");
     runTest.write("exit\n");
-    runTest.waitForFinished(100);
+    runTest.waitForFinished(3000);
     if(!runTest.exitCode() || aNoTest)
     {
       return ventoyDir.absolutePath();

@@ -296,7 +296,8 @@ void Widget::getDeviceVentoyVersion() {
   bool forceExit = false;
   QString vtoyfatPath;
   if (m_archiveVer >= SemanticVersion(1, 0, 30)) {
-    vtoyfatPath = "tool/x86_64/vtoyfat";
+    // Since Ventoy 1.0.x the bundled tool is vtoycli (vtoyfat was dropped)
+    vtoyfatPath = "tool/x86_64/vtoycli fat";
   } else {
     vtoyfatPath = "tool/vtoyfat_32";
   }
