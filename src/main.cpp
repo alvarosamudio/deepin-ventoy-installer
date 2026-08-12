@@ -12,6 +12,9 @@ int main(int argc, char *argv[]) {
   if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORMTHEME")) {
     setenv("QT_QPA_PLATFORMTHEME", "deepin", 1);
   }
+  if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM")) {
+    setenv("QT_QPA_PLATFORM", "dxcb;xcb", 1);
+  }
 
   DApplication a(argc, argv);
 

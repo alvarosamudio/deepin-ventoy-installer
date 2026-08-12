@@ -110,9 +110,30 @@ void rerunOnNonRoot()
     {
       QString password = edit->text();
       QProcess rerun;
+      // sudo resets the environment by default; preserve the variables the
+      // GUI session depends on (platform plugin, display, D-Bus...) so the
+      // relaunched instance keeps the Deepin/DTK look and feel.
+      QString envArgs;
+      QStringList envPreserve = {"QT_QPA_PLATFORM", "QT_QPA_PLATFORMTHEME",
+                                 "DISPLAY", "WAYLAND_DISPLAY",
+                                 "XDG_SESSION_TYPE", "XDG_CURRENT_DESKTOP",
+                                 "XAUTHORITY", "DBUS_SESSION_BUS_ADDRESS"};
+      foreach(const QString &var, envPreserve)
+      {
+        QByteArray value = qgetenv(var.toLatin1());
+        if(!value.isEmpty())
+        {
+          // Single-quote the value so shell metacharacters (e.g. ';' inside
+          // "dxcb;xcb") survive the sudo command line.
+          QString quoted = QString::fromLocal8Bit(value);
+          quoted.replace('\'', "'\\''");
+          envArgs += QString(" %1='%2'").arg(var, quoted);
+        }
+      }
       rerun.startDetached("bash", QStringList() << "-c"
-                  << QString("echo %1\"\n\n\n\n\n\n\n\n\" | sudo -S %2") // If fails then ENTER ENTER ENTER til sudo ends
+                  << QString("echo %1\"\n\n\n\n\n\n\n\n\" | sudo -S%2 %3") // If fails then ENTER ENTER ENTER til sudo ends
                   .arg(password)
+                  .arg(envArgs)
                   .arg(QCoreApplication::applicationFilePath()));
     }
     exit(1);
