@@ -84,6 +84,7 @@ qt_add_translations(${PROJECT_NAME}
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 install(FILES src/dvtoyinst.desktop DESTINATION share/applications)
 install(FILES src/res/dvtoyinst.png DESTINATION share/icons/hicolor/512x512/apps)
+install(FILES src/res/dvtoyinst.svg DESTINATION share/icons/hicolor/scalable/apps)
 
 # Las traducciones van embebidas en el binario (antes se intentaban instalar
 # .qm de src/translations que no existian).

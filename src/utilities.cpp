@@ -113,7 +113,22 @@ void rerunOnNonRoot()
   }
   args << QCoreApplication::applicationFilePath();
 
-  if(!QProcess::startDetached(QStringLiteral("pkexec"), args))
+  // No se usa startDetached: pkexec autoriza segun su proceso padre y, si
+  // este ya ha terminado, el padre pasa a ser systemd. Al abrir la app desde
+  // el menu de Deepin polkit podia entonces no reconocer la sesion del
+  // usuario y negar el permiso. Esta instancia (sin ventana) espera a que
+  // termine la de root.
+  QProcess elevada;
+  elevada.setProcessChannelMode(QProcess::ForwardedChannels);
+  elevada.start(QStringLiteral("pkexec"), args);
+  if(elevada.waitForStarted())
+  {
+    elevada.waitForFinished(-1);
+    // 126: dialogo cancelado; 127: sin autorizacion. En ambos casos se sale
+    // sin mas, igual que si el usuario hubiese cerrado la app.
+    exit(0);
+  }
+  else
   {
     Dtk::Widget::DDialog error;
     error.setTitle(QObject::tr("Run As Root"));
