@@ -1,3 +1,5 @@
+#include <QTranslator>
+#include <QLocale>
 #include "mainwindow.h"
 #include "utilities.h"
 
@@ -18,9 +20,14 @@ int main(int argc, char *argv[]) {
 
   DApplication a(argc, argv);
 
-  a.loadTranslator(QList<QLocale>() << QLocale::Spanish << QLocale::Chinese
-                                    << QLocale::Portuguese << QLocale::Italian
-                                    << QLocale::French);
+  // Antes se pasaba una lista fija (espanol primero) y se cargaba siempre el
+  // espanol, fuese cual fuese el idioma del sistema. Las traducciones van
+  // embebidas en :/i18n (qt_add_translations) y se elige la del sistema.
+  a.loadTranslator();
+  QTranslator translator;
+  if (translator.load(QLocale(), QStringLiteral("dvtoyinst"), QStringLiteral("_"),
+                      QStringLiteral(":/i18n")))
+    a.installTranslator(&translator);
   a.setOrganizationName("0x4C57 Technology Group");
   a.setApplicationVersion(DApplication::buildVersion("1.1.0"));
   a.setProductIcon(QIcon(":/images/res/dvtoyinst.png"));

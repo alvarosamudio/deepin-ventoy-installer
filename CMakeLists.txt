@@ -73,7 +73,9 @@ set(TS_FILES
     src/translations/dvtoyinst_fr.ts
 )
 
+# Se embeben en :/i18n. IMMEDIATE_CALL evita fallos con rutas con espacios.
 qt_add_translations(${PROJECT_NAME}
+    IMMEDIATE_CALL
     TS_FILES ${TS_FILES}
     SOURCES ${SOURCES} ${HEADERS}
 )
@@ -83,8 +85,5 @@ install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 install(FILES src/dvtoyinst.desktop DESTINATION share/applications)
 install(FILES src/res/dvtoyinst.png DESTINATION share/icons/hicolor/512x512/apps)
 
-foreach(_lang zh es pt it fr)
-    install(FILES "src/translations/dvtoyinst_${_lang}.qm"
-            DESTINATION share/deepin-ventoy-installer/translations
-            OPTIONAL)
-endforeach()
+# Las traducciones van embebidas en el binario (antes se intentaban instalar
+# .qm de src/translations que no existian).

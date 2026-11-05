@@ -1,2 +1,15 @@
 build/
 *.pro.user
+
+# debhelper / paquetes / linyaps
+obj-*/
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/*.substvars
+debian/deepin-ventoy-installer/
+debs/
+linglong/
+*.uab
+*.layer
+.DS_Store

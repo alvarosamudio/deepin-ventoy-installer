@@ -1,3 +1,23 @@
+deepin-ventoy-installer (1.1.0-1) unstable; urgency=medium
+
+  * El acceso directo del menu ejecutaba 'dvtoyinst', que no existe (el
+    binario es deepin-ventoy-installer), y su icono no coincidia con el
+    instalado.
+  * Se cargaba siempre la traduccion al espanol, fuese cual fuese el
+    idioma del sistema; ahora se usa la del sistema, embebida en el
+    binario.
+  * La dependencia 'ventoy' no existe en los repositorios de Deepin e
+    impedia instalar el paquete; pasa a ser recomendada (la aplicacion
+    descarga Ventoy).
+  * Descarga automaticamente la ultima version de Ventoy al iniciar si no
+    hay ninguna o la que hay es antigua (antes habia que pulsar el boton, y
+    tras reiniciar se daba por buena una descompresion que ya no existia).
+  * CI: el workflow fallaba en Ubuntu (DTK6 no existe alli); ahora
+    compila en Deepin crimson y publica release automatica con .deb y
+    .uab.
+
+ -- Alvaro Samudio <alvarosamudio@protonmail.com>  Wed, 04 Nov 2026 20:00:00 +0000
+
 deepin-ventoy-installer (1.0.0-1) unstable; urgency=medium
 
   * Initial release.

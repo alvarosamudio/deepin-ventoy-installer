@@ -2,18 +2,21 @@ Source: deepin-ventoy-installer
 Section: utils
 Priority: optional
 Maintainer: Alvaro Samudio <alvarosamudio@protonmail.com>
-Build-Depends: debhelper (>= 11),
+Build-Depends: debhelper-compat (= 13),
                cmake,
                qt6-base-dev,
                qt6-tools-dev,
                qt6-tools-dev-tools,
+               qt6-l10n-tools,
                libdtk6widget-dev
-Standards-Version: 4.1.3
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
 Homepage: https://github.com/alvarosamudio/deepin-ventoy-installer
 
 Package: deepin-ventoy-installer
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ventoy, tar, util-linux
+Depends: ${shlibs:Depends}, ${misc:Depends}, tar, util-linux
+Recommends: ventoy
 Description: Deepin Ventoy Installer
  A simple GUI installer for Ventoy on Deepin/UOS.
  It allows downloading the latest Ventoy and installing it to a USB drive.

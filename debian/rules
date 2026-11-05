@@ -1,13 +1,9 @@
 #!/usr/bin/make -f
 
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
 %:
-	dh $@
+	dh $@ --buildsystem=cmake
 
 override_dh_auto_configure:
-	cmake -B build -DCMAKE_INSTALL_PREFIX=/usr
-
-override_dh_auto_build:
-	cmake --build build -j$(nproc)
-
-override_dh_auto_install:
-	DESTDIR=$(CURDIR)/debian/deepin-ventoy-installer cmake --install build
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE=Release

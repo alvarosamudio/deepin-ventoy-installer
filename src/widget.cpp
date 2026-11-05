@@ -484,32 +484,21 @@ void Widget::notifyUpdateAvailability() {
 
   QSettings settings;
   SemanticVersion lastVer(settings.value("lastVentoyVersion").toString());
-  if (lastVer.invalid()) {
-    ui->lblHintDropArchive->setText(
-        tr("Latest Ventoy available: %1. Click \"Download Latest\" to get it.")
-            .arg(QString(m_latestAvailableVer)));
+
+  // La aplicacion necesita la ultima version de Ventoy para funcionar: se
+  // descarga automaticamente si no hay ninguna descomprimida o si la que hay
+  // es antigua. La descompresion vive en /tmp y se pierde al reiniciar, asi
+  // que se comprueba que exista de verdad y no solo el ajuste guardado.
+  const bool hayExtraccion = !findDVIWorkFile(tmpDir, true).isEmpty();
+  if (!hayExtraccion || lastVer.invalid() || lastVer < m_latestAvailableVer) {
+    m_downloadRequested = true;
+    checkForUpdates();
     return;
   }
 
-  if (lastVer < m_latestAvailableVer) {
-    DDialog updateMsg;
-    updateMsg.setTitle(tr("Update Available"));
-    updateMsg.setMessage(tr("A new version of Ventoy is available: %1.\n"
-                            "You currently have: %2.\n\nDownload it now?")
-                             .arg(QString(m_latestAvailableVer))
-                             .arg(QString(lastVer)));
-    updateMsg.setIcon(QIcon::fromTheme("dialog-information"));
-    updateMsg.addButton(tr("Download"), true, DDialog::ButtonRecommend);
-    updateMsg.addButton(tr("Later"), false, DDialog::ButtonNormal);
-    if (updateMsg.exec() == 0) {
-      m_downloadRequested = true;
-      checkForUpdates();
-    }
-  } else {
-    ui->lblHintDropArchive->setText(
-        tr("You have the latest Ventoy version (%1).")
-            .arg(QString(lastVer)));
-  }
+  ui->lblHintDropArchive->setText(
+      tr("You have the latest Ventoy version (%1).")
+          .arg(QString(lastVer)));
 }
 
 void Widget::onArchiveDownloaded(QNetworkReply *reply) {
