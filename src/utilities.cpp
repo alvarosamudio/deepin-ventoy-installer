@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <QProcess>
 #include <QDebug>
 #include <QApplication>
@@ -86,58 +87,43 @@ SemanticVersion::SemanticVersion()
   major = minor = patch = 0;
 }
 
+// Se relanza como root con pkexec (polkit), que muestra el dialogo de
+// autenticacion del sistema. Antes la aplicacion pedia la contrasena en un
+// dialogo propio y la insertaba en una orden de bash ("echo <contrasena> |
+// sudo -S ..."): quedaba visible para cualquier usuario en la lista de
+// procesos y una contrasena con ; $( ) o comillas ejecutaba ordenes.
 void rerunOnNonRoot()
 {
-  if(qgetenv("USER") != "root")
+  if(geteuid() == 0)
+    return;
+
+  // pkexec limpia el entorno; se pasan con env (sin shell, como argumentos
+  // independientes) las variables que necesita la sesion grafica.
+  QStringList args{QStringLiteral("env")};
+  const QStringList envPreserve = {"QT_QPA_PLATFORM", "QT_QPA_PLATFORMTHEME",
+                                   "DISPLAY", "WAYLAND_DISPLAY",
+                                   "XDG_SESSION_TYPE", "XDG_CURRENT_DESKTOP",
+                                   "XDG_RUNTIME_DIR", "XAUTHORITY",
+                                   "DBUS_SESSION_BUS_ADDRESS", "LANG", "LANGUAGE"};
+  for(const QString &var : envPreserve)
   {
-
-    Dtk::Widget::DDialog input;
-    Dtk::Widget::DLineEdit *edit = new Dtk::Widget::DLineEdit(&input);
-    edit->setEchoMode(QLineEdit::Password);
-    input.setTitle(QObject::tr("Run As Root"));
-    input.setMessage(QObject::tr("This application must be run as root user.\n"
-                                   "Provide password to continue.\n")); // An empty line to separate contents
-    input.addContent(edit);
-    input.addButton(QObject::tr("Authenticate"), true, DDialog::ButtonType::ButtonRecommend);
-    input.setIcon(QIcon::fromTheme("dialog-information"));
-    input.setFocusPolicy(Qt::FocusPolicy::StrongFocus);
-    edit->lineEdit()->setFocus(Qt::FocusReason::TabFocusReason); // FIXME: The input will not get focused despite my efforts.
-    QObject::connect(edit, SIGNAL(returnPressed()), &input, SLOT(accept()));
-    //QObject::connect(&input, SIGNAL())
-
-    // The only way to explicitly close the window will return -1, not rejected (0) nor accepted (1)
-    if(input.exec() != -1)
-    {
-      QString password = edit->text();
-      QProcess rerun;
-      // sudo resets the environment by default; preserve the variables the
-      // GUI session depends on (platform plugin, display, D-Bus...) so the
-      // relaunched instance keeps the Deepin/DTK look and feel.
-      QString envArgs;
-      QStringList envPreserve = {"QT_QPA_PLATFORM", "QT_QPA_PLATFORMTHEME",
-                                 "DISPLAY", "WAYLAND_DISPLAY",
-                                 "XDG_SESSION_TYPE", "XDG_CURRENT_DESKTOP",
-                                 "XAUTHORITY", "DBUS_SESSION_BUS_ADDRESS"};
-      foreach(const QString &var, envPreserve)
-      {
-        QByteArray value = qgetenv(var.toLatin1());
-        if(!value.isEmpty())
-        {
-          // Single-quote the value so shell metacharacters (e.g. ';' inside
-          // "dxcb;xcb") survive the sudo command line.
-          QString quoted = QString::fromLocal8Bit(value);
-          quoted.replace('\'', "'\\''");
-          envArgs += QString(" %1='%2'").arg(var, quoted);
-        }
-      }
-      rerun.startDetached("bash", QStringList() << "-c"
-                  << QString("echo %1\"\n\n\n\n\n\n\n\n\" | sudo -S%2 %3") // If fails then ENTER ENTER ENTER til sudo ends
-                  .arg(password)
-                  .arg(envArgs)
-                  .arg(QCoreApplication::applicationFilePath()));
-    }
-    exit(1);
+    const QByteArray value = qgetenv(var.toLatin1());
+    if(!value.isEmpty())
+      args << QStringLiteral("%1=%2").arg(var, QString::fromLocal8Bit(value));
   }
+  args << QCoreApplication::applicationFilePath();
+
+  if(!QProcess::startDetached(QStringLiteral("pkexec"), args))
+  {
+    Dtk::Widget::DDialog error;
+    error.setTitle(QObject::tr("Run As Root"));
+    error.setMessage(QObject::tr("This application must be run as root user.\n"
+                                 "Provide password to continue.\n"));
+    error.setIcon(QIcon::fromTheme("dialog-error"));
+    error.addButton(QObject::tr("OK"), true);
+    error.exec();
+  }
+  exit(0);
 }
 
 void enableCheckBox(bool criteria, QCheckBox *w)

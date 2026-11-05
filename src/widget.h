@@ -14,6 +14,9 @@
 #include <QProcess>
 #include <QThread>
 #include <QWidget>
+#include <QComboBox>
+#include <QCheckBox>
+#include <QSpinBox>
 
 namespace Ui {
 class Widget;
@@ -25,6 +28,15 @@ class Widget : public QWidget {
   Q_OBJECT
 
 public:
+  struct DeviceInfo {
+    QString path;
+    QString label;
+    bool isRemovable = false;
+    bool isSystem = false;
+    qint64 sizeBytes = 0;
+  };
+  static DeviceInfo deviceInfo(const QString &path);
+
   explicit Widget(QWidget *parent = nullptr);
   ~Widget();
 
@@ -120,9 +132,8 @@ private:
    * @param aUseSecureBoot is going to use secure boot
    * @param aVolLabel the volume label for the ISO partition
    */
-  void installVentoy(const QString &aDevice, bool aIsUpdate, bool aIsForced,
-                     bool aUseGpt, bool aUseSecureBoot,
-                     const QString &aVolLabel);
+  void installVentoy(const QString &aDevice, const QStringList &aParams);
+  void actualizarOpcionesSegunModo();
 
 private:
   Ui::Widget *ui;
@@ -135,6 +146,10 @@ private:
   bool m_downloadRequested;
   QAction *actGoDropArchive;
   bool m_noTestVentoy;
+  // Opciones adicionales de Ventoy2Disk
+  QComboBox *m_comboModo = nullptr;
+  QCheckBox *m_chkReservar = nullptr;
+  QSpinBox *m_spinReservar = nullptr;
 };
 
 #endif // WIDGET_H

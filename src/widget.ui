@@ -283,8 +283,11 @@ in Device</string>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
            <widget class="QCheckBox" name="chkEnableSecureBoot">
+            <property name="checked">
+             <bool>true</bool>
+            </property>
             <property name="text">
-             <string>Enable Secure Boot support (experimental)</string>
+             <string>Enable Secure Boot support</string>
             </property>
            </widget>
           </item>

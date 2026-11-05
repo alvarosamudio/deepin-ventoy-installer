@@ -15,7 +15,7 @@ Homepage: https://github.com/alvarosamudio/deepin-ventoy-installer
 
 Package: deepin-ventoy-installer
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, tar, util-linux
+Depends: ${shlibs:Depends}, ${misc:Depends}, tar, util-linux, pkexec
 Recommends: ventoy
 Description: Deepin Ventoy Installer
  A simple GUI installer for Ventoy on Deepin/UOS.

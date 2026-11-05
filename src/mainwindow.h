@@ -18,10 +18,6 @@ private:
   Widget *w;
   void closeEvent(QCloseEvent *e) Q_DECL_OVERRIDE;
   void initWindow();
-
-private:
-  QAction *actGoDropArchive;
-
 };
 
 #endif // MAINWINDOW_H

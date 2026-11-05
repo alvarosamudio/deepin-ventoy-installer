@@ -14,8 +14,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     w = new Widget;
 
-    resize(w->size());
     setCentralWidget(w);
+    // Tamano fijo: la ventana no se puede maximizar ni redimensionar
+    setFixedSize(w->size());
+    setWindowFlags(windowFlags() & ~Qt::WindowMaximizeButtonHint);
     initWindow();
 }
 
@@ -49,13 +51,9 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
 void MainWindow::initWindow()
 {
-  actGoDropArchive = new QAction(this);
-  actGoDropArchive->setText(tr("Go back to drop archive"));
-  connect(actGoDropArchive, &QAction::triggered, w, &Widget::goBackDropArchive);
-  QMenu *menu = new QMenu(this->titlebar());
-  menu->addAction(actGoDropArchive);
-  this->titlebar()->setMenu(menu);
-  this->titlebar()->setIcon(QIcon(":/images/res/dvtoyinst.png"));
-  this->titlebar()->setTitle(tr("Deepin Ventoy Installer"));
+  // El titulo de la ventana se mantiene para la barra de tareas, pero la
+  // barra superior no muestra ni el nombre ni el icono.
   this->setWindowTitle(tr("Deepin Ventoy Installer"));
+  this->titlebar()->setIcon(QIcon());
+  this->titlebar()->setTitle(QString());
 }
