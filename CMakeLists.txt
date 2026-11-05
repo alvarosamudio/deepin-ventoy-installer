@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(deepin-ventoy-installer
-    VERSION 1.1.0
+    VERSION 1.2.0
     DESCRIPTION "A Ventoy installer front-end built with DTK"
     LANGUAGES CXX
 )

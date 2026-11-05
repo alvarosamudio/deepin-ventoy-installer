@@ -1,3 +1,23 @@
+deepin-ventoy-installer (1.2.0-1) unstable; urgency=medium
+
+  * Se pide la contrasena con el dialogo del sistema (pkexec) en lugar de
+    un dialogo propio que la pasaba a sudo en la linea de ordenes.
+  * La aplicacion arranca como root de forma fiable al abrirla desde el
+    menu de Deepin.
+  * Selector de modo de instalacion, opcion para reservar espacio al final
+    del disco y validacion de la etiqueta de volumen. El disco del sistema
+    no se puede seleccionar y los discos internos piden confirmacion.
+  * Las etiquetas de volumen con espacios ya no hacen fallar la
+    instalacion.
+  * Icono nuevo al estilo de Deepin, en PNG y SVG.
+  * Iconos de la interfaz modernizados, con versiones para tema claro y
+    oscuro que se aplican tambien al arrancar.
+  * Ventana de tamano fijo y barra superior sin nombre ni icono.
+  * Se elimina el paquete Linglong: dentro de su contenedor la aplicacion
+    no puede obtener permisos de root para escribir en el USB.
+
+ -- Alvaro Samudio <alvarosamudio@protonmail.com>  Thu, 05 Nov 2026 14:00:00 +0000
+
 deepin-ventoy-installer (1.1.0-1) unstable; urgency=medium
 
   * El acceso directo del menu ejecutaba 'dvtoyinst', que no existe (el

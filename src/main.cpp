@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
                       QStringLiteral(":/i18n")))
     a.installTranslator(&translator);
   a.setOrganizationName("0x4C57 Technology Group");
-  a.setApplicationVersion(DApplication::buildVersion("1.1.0"));
+  a.setApplicationVersion(DApplication::buildVersion("1.2.0"));
   a.setProductIcon(QIcon(":/images/res/dvtoyinst.png"));
   a.setProductName(QObject::tr("Deepin Ventoy Installer"));
   a.setApplicationDescription(
